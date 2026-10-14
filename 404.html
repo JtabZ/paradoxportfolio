@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This room isn't on the map — Cabinet of Minds</title>
+<meta name="robots" content="noindex">
+<!--
+  This page has no external CSS/JS/font dependencies, on purpose: GitHub
+  Pages serves 404.html for ANY unmatched URL under this site, at ANY depth,
+  while leaving that broken URL in the address bar. A relative asset link
+  that's correct from the real repo root would resolve to the wrong place
+  from a fake deep URL — so everything here is inlined, and the "return
+  home" links below are computed from location.pathname at runtime instead
+  of hardcoded.
+-->
+<style>
+  :root {
+    --bg: #15110d;
+    --ink: #ece1c8;
+    --ink-dim: #b6a888;
+    --line: #3a2f22;
+    --accent: #d4a24e;
+    --accent-ink: #211705;
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: #15110d;
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at top, rgba(212, 162, 78, 0.14), transparent 60%);
+    background-repeat: no-repeat;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    text-align: center;
+  }
+  main { max-width: 32rem; }
+  .flame { width: 40px; height: 40px; margin: 0 auto 1.5rem; display: block; }
+  .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.75rem;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 1.5rem + 1.5vw, 2.6rem);
+    line-height: 1.2;
+    margin: 0 0 1rem;
+  }
+  p {
+    color: var(--ink-dim);
+    line-height: 1.7;
+    margin: 0 0 2rem;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+  a {
+    color: var(--accent-ink);
+    background: var(--accent);
+    text-decoration: none;
+    padding: 0.55em 1.1em;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+  }
+  a:hover, a:focus-visible { opacity: 0.9; }
+  a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  a.secondary {
+    color: var(--ink-dim);
+    background: none;
+    border: 1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+  <main>
+    <svg class="flame" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M16 6c-2.2 4-5 7.2-5 11a5 5 0 0 0 10 0c0-3.8-2.8-7-5-11z" fill="#d4a24e"/>
+      <circle cx="16" cy="19" r="1.8" fill="#15110d"/>
+    </svg>
+    <p class="eyebrow">Exhibit not found</p>
+    <h1>This room isn't on the map.</h1>
+    <p>
+      Either this exhibit hasn't been built yet, or the placard fell off the
+      wall. Either way, there's nothing behind this door — but the rest of
+      the cabinet is still open.
+    </p>
+    <nav class="links" id="links" aria-label="Find your way back"></nav>
+  </main>
+
+  <script>
+    (function () {
+      // Find the site root from wherever this 404 was actually served,
+      // regardless of how deep the broken URL was or what sub-path this
+      // repo is hosted under.
+      var path = location.pathname;
+      var marker = path.match(/^(.*\/)(wings|_template|data|shared)\//);
+      var root = marker ? marker[1] : path.replace(/[^/]*$/, "");
+      if (!root) root = "/";
+
+      var links = [
+        ["Return to the entrance", root],
+        ["The Hall of Consciousness", root + "wings/consciousness/"],
+        ["The Machine Wing", root + "wings/machine/"],
+        ["The Archive of Meaning", root + "wings/meaning/"],
+        ["The Gallery of Perception", root + "wings/perception/"],
+        ["The Rooms of the Self", root + "wings/self/"],
+      ];
+
+      var nav = document.getElementById("links");
+      links.forEach(function (link, i) {
+        var a = document.createElement("a");
+        a.href = link[1];
+        a.textContent = link[0];
+        if (i > 0) a.className = "secondary";
+        nav.appendChild(a);
+      });
+    })();
+  </script>
+</body>
+</html>

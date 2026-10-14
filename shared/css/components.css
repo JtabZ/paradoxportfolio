@@ -1,0 +1,298 @@
+/* ==========================================================================
+   Cabinet of Minds — components
+   Header, footer, breadcrumbs, and the two card types (wing card, exhibit
+   card) shared by the homepage and every wing page. The exhibit page's own
+   5-part layout lives in exhibit.css.
+   ========================================================================== */
+
+/* ---- Site header --------------------------------------------------------- */
+
+.site-header {
+  border-bottom: var(--frame-width) solid var(--line);
+  background: linear-gradient(to bottom, var(--bg-raised), transparent);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) 0;
+  flex-wrap: wrap;
+}
+
+.site-header__mark {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.site-header__mark:hover { color: var(--accent); }
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+  flex-wrap: wrap;
+}
+
+.site-header__nav a { color: var(--ink-dim); }
+.site-header__nav a:hover,
+.site-header__nav a[aria-current="page"] { color: var(--accent); }
+
+/* ---- Immersive header (exhibit pages) -------------------------------------
+   No wing nav, no breadcrumbs — just the mark and a way back. Fixed and
+   translucent, hidden by default so the exhibit feels like the only thing
+   on the page; revealed on scroll-up, near the page end, or on focus. */
+
+.site-header--immersive {
+  border-bottom: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: linear-gradient(to bottom, rgba(15, 12, 9, 0.85), transparent);
+  backdrop-filter: blur(6px);
+  transform: translateY(-100%);
+  transition: transform var(--duration-base) var(--ease);
+}
+
+.site-header--immersive.is-visible,
+.site-header--immersive:focus-within {
+  transform: translateY(0);
+}
+
+.site-header__inner--immersive {
+  padding: var(--space-4) 0;
+}
+
+.site-header__back {
+  color: var(--ink-dim);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.site-header__back:hover { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header--immersive { transition: none; }
+}
+
+/* ---- Breadcrumbs ---------------------------------------------------------- */
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: var(--space-6) 0 var(--space-4);
+  flex-wrap: wrap;
+}
+
+.breadcrumbs a { color: var(--ink-faint); text-decoration: none; }
+.breadcrumbs a:hover { color: var(--accent); }
+.breadcrumbs__sep { opacity: 0.6; }
+.breadcrumbs__current { color: var(--ink-dim); }
+
+/* ---- Footer --------------------------------------------------------------- */
+
+.site-footer {
+  border-top: var(--frame-width) solid var(--line);
+  margin-top: var(--space-9);
+  padding: var(--space-6) 0 var(--space-8);
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
+}
+
+.site-footer__credit {
+  max-width: var(--measure);
+}
+
+.site-footer__credit a { color: var(--ink-dim); }
+
+/* ---- Wing cards (homepage) ------------------------------------------------ */
+
+.wing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-5);
+  margin: var(--space-6) 0;
+}
+
+.wing-card {
+  display: block;
+  padding: var(--space-6) var(--space-5);
+  border: var(--frame-width) solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color var(--duration-base) var(--ease),
+              transform var(--duration-base) var(--ease-out),
+              box-shadow var(--duration-base) var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.wing-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent-soft);
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease);
+}
+
+.wing-card:hover,
+.wing-card:focus-visible {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -12px var(--shadow-color);
+}
+
+.wing-card:hover::before,
+.wing-card:focus-visible::before { opacity: 1; }
+
+.wing-card__part {
+  display: block;
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-2);
+  position: relative;
+}
+
+.wing-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin: 0 0 var(--space-3);
+  position: relative;
+}
+
+.wing-card__blurb {
+  color: var(--ink-dim);
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-4);
+  position: relative;
+}
+
+.wing-card__status {
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  position: relative;
+}
+
+/* ---- Exhibit cards (wing pages) ------------------------------------------- */
+
+.exhibit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+
+.exhibit-card {
+  display: block;
+  padding: var(--space-5);
+  border: var(--frame-width) solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+  text-decoration: none;
+  color: var(--ink);
+  min-height: 11rem;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--duration-base) var(--ease),
+              transform var(--duration-base) var(--ease-out);
+}
+
+.exhibit-card:hover,
+.exhibit-card:focus-visible {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.exhibit-card__number {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--accent);
+  margin-bottom: var(--space-2);
+}
+
+.exhibit-card__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-2);
+  line-height: var(--leading-snug);
+}
+
+.exhibit-card__oneliner {
+  color: var(--ink-dim);
+  font-size: var(--text-sm);
+  margin: 0;
+  flex-grow: 1;
+}
+
+.exhibit-card--coming-soon {
+  border-style: dashed;
+  cursor: default;
+  opacity: 0.75;
+}
+
+.exhibit-card--coming-soon:hover,
+.exhibit-card--coming-soon:focus-visible {
+  border-color: var(--line);
+  transform: none;
+}
+
+.badge {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: var(--space-3);
+  padding: 0.15em 0.6em;
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: var(--frame-width) solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-faint);
+}
+
+.badge--built {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---- Hero (homepage) ------------------------------------------------------ */
+
+.hero {
+  padding: var(--space-8) 0 var(--space-6);
+  text-align: left;
+}
+
+.hero__title {
+  font-size: var(--text-4xl);
+  margin-bottom: var(--space-4);
+}
+
+.hero__lede {
+  font-size: var(--text-lg);
+  color: var(--ink-dim);
+  max-width: var(--measure);
+  line-height: var(--leading-loose);
+}
+
+@media (max-width: 40rem) {
+  .hero { padding: var(--space-6) 0 var(--space-5); }
+}

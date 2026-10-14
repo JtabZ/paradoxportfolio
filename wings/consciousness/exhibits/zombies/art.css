@@ -1,0 +1,50 @@
+/* art.css — Zombies
+   Only this exhibit's pair of "look inside" buttons need custom placement;
+   the canvas itself already fills the stage via the shared exhibit.css
+   rule. */
+
+[data-exhibit-slug="zombies"] .stage .zombies-buttons {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-4);
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  width: calc(100% - var(--space-6));
+}
+
+@media (max-width: 40rem) {
+  [data-exhibit-slug="zombies"] .stage .zombies-look-button {
+    padding: 0.5em 0.85em;
+    font-size: var(--text-xs);
+  }
+}
+
+[data-exhibit-slug="zombies"] .stage .zombies-look-button {
+  padding: 0.6em 1.1em;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  letter-spacing: 0.02em;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px -8px var(--shadow-color);
+  transition: transform var(--duration-fast) var(--ease), background var(--duration-fast) var(--ease);
+}
+
+[data-exhibit-slug="zombies"] .stage .zombies-look-button:hover {
+  transform: translateY(-1px);
+}
+
+[data-exhibit-slug="zombies"] .stage .zombies-look-button[aria-pressed="true"] {
+  background: var(--accent-soft);
+}
+
+[data-exhibit-slug="zombies"] .stage .zombies-look-button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

@@ -1,0 +1,159 @@
+/* ==========================================================================
+   Cabinet of Minds — design tokens
+   Surreal cabinet of curiosities: dark wood, candlelight, a Borges library.
+   Every component and every art piece should read colors from here (via
+   custom properties, or shared/js/art-kit/palette.js for canvas) rather than
+   hardcoding values, so the collection stays visually unified.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Instrument Sans Variable";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../fonts/instrument-sans-variable.woff2") format("woff2-variations");
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/instrument-serif-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/instrument-serif-italic.woff2") format("woff2");
+}
+
+:root {
+  /* ---- Color: the room at dusk ------------------------------------- */
+  --bg: #15110d;             /* the hall itself: near-black warm wood */
+  --bg-raised: #1d1712;      /* a display case, slightly lifted off the wall */
+  --bg-sunken: #0f0c09;      /* recessed panels, the space behind glass */
+  --ink: #ece1c8;            /* candlelit parchment */
+  --ink-dim: #b6a888;        /* secondary text, further from the flame */
+  --ink-faint: #766a52;      /* placards, captions, the smallest print */
+  --line: #3a2f22;           /* hairline borders — old bronze */
+  --line-soft: #2a2219;
+
+  /* Default accent (used before a wing's identity applies: homepage, chrome) */
+  --accent: #c9a227;
+  --accent-soft: rgba(201, 162, 39, 0.16);
+  --accent-ink: #1a1508;     /* text placed ON a solid accent fill */
+
+  --shadow-color: rgba(0, 0, 0, 0.65);
+  --glow: radial-gradient(ellipse at top, rgba(201, 162, 39, 0.12), transparent 60%);
+
+  /* ---- Type ---------------------------------------------------------- */
+  /* Instrument Sans Variable carries both display and body duty — weight
+     400–700 on one variable file. --font-accent is the italic serif used
+     only for <em> accent words inside hero lines/statements/titles; it
+     never becomes a body or heading font on its own. */
+  --font-display: "Instrument Sans Variable", "Instrument Sans", system-ui, sans-serif;
+  --font-body: "Instrument Sans Variable", "Instrument Sans", system-ui, sans-serif;
+  --font-accent: "Instrument Serif", Georgia, serif;
+
+  --text-xs: clamp(0.72rem, 0.7rem + 0.05vw, 0.78rem);
+  --text-sm: clamp(0.9rem, 0.86rem + 0.1vw, 1rem);
+  --text-base: clamp(1.05rem, 1rem + 0.2vw, 1.3rem);
+  --text-lg: clamp(1.25rem, 1.15rem + 0.35vw, 1.6rem);
+  --text-xl: clamp(1.5rem, 1.35rem + 0.6vw, 2rem);
+  --text-2xl: clamp(1.9rem, 1.6rem + 1.2vw, 2.8rem);
+  --text-3xl: clamp(2.4rem, 1.9rem + 2vw, 3.8rem);
+  --text-4xl: clamp(3rem, 2.2rem + 3vw, 5rem);
+
+  /* The exhibit page's bigger, poster-scale sizes — the title, scene
+     headings, and lead statements. Everything else keeps the scale above. */
+  --text-statement: clamp(1.6rem, 1.3rem + 1.6vw, 2.6rem);
+  --text-hero: clamp(2.5rem, 1.6rem + 4.5vw, 6rem);
+  /* Tuned to stay clear of the fold even for a 5–6 word title wrapping to
+     3 lines in the hero's narrower column (e.g. "What It's Like to Be a
+     Bat") at common desktop heights — not just scaled for the widest
+     screen. A one-word title (e.g. "Zombies") still reads as a poster. */
+  --text-display: clamp(3rem, 1rem + 7vw, 9rem);
+
+  --leading-display: 0.88;
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.6;
+  --leading-loose: 1.85;
+
+  /* ---- Space (rem, 4px base) ------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 7rem;
+
+  --container-max: 72rem;
+  --measure: 38rem; /* comfortable reading line length for The Case */
+
+  /* ---- Motion ---------------------------------------------------------- */
+  --duration-fast: 150ms;
+  --duration-base: 320ms;
+  --duration-slow: 650ms;
+  --duration-reveal: 1000ms;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ---- Shape -------------------------------------------------------- */
+  --radius-sm: 2px;
+  --radius-md: 5px;
+  --frame-width: 1px;
+}
+
+/* Respect the OS-level motion preference at the token layer too, so any
+   component using --duration-* automatically calms down. Individual art
+   pieces still must check prefers-reduced-motion themselves via ctx. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 1ms;
+    --duration-base: 1ms;
+    --duration-slow: 1ms;
+    --duration-reveal: 1ms;
+  }
+}
+
+/* ---- Per-wing accents ---------------------------------------------------
+   Set on <body data-wing="…">. Everything else keeps reading var(--accent);
+   only the value changes per room, the way a museum tints each gallery's
+   light differently. */
+
+[data-wing="consciousness"] {
+  --accent: #d4a24e;   /* candle gold — The Hall of Consciousness */
+  --accent-soft: rgba(212, 162, 78, 0.16);
+  --accent-ink: #211705;
+}
+
+[data-wing="machine"] {
+  --accent: #7c9a82;   /* tarnished brass-green — The Machine Wing */
+  --accent-soft: rgba(124, 154, 130, 0.16);
+  --accent-ink: #0f1a12;
+}
+
+[data-wing="meaning"] {
+  --accent: #a8524f;   /* deep wine — The Archive of Meaning */
+  --accent-soft: rgba(168, 82, 79, 0.16);
+  --accent-ink: #200a09;
+}
+
+[data-wing="perception"] {
+  --accent: #8b7ab5;   /* dusty violet — The Gallery of Perception */
+  --accent-soft: rgba(139, 122, 181, 0.16);
+  --accent-ink: #16111f;
+}
+
+[data-wing="self"] {
+  --accent: #5d84ab;   /* slate blue — The Rooms of the Self */
+  --accent-soft: rgba(93, 132, 171, 0.16);
+  --accent-ink: #0c141c;
+}

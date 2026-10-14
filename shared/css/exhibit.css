@@ -1,0 +1,564 @@
+/* ==========================================================================
+   Cabinet of Minds — exhibit
+   The immersive exhibit layout: a full-bleed hero (the title and, if the
+   exhibit has one, its piece, above the fold) followed by scroll-staged
+   "scenes" — What's at Stake, The Case, The Argument, The Tension, the
+   note, Further Reading — and a closing outro. Built by
+   shared/js/render-exhibit.js from the manifest and the exhibit's own
+   exhibit.js; this file only ever styles structure. Title-effect specifics
+   (per-letter entrance, candlelight, shimmer…) live in type-effects.css.
+   ========================================================================== */
+
+/* The rest of the site keeps its centered .u-container. An exhibit page is
+   meant to feel like there's nothing else on it, so it breaks out to full
+   width here and re-establishes reading widths scene by scene instead. */
+body[data-exhibit-slug] .u-container:has(> #exhibit-root) {
+  max-width: none;
+  padding: 0;
+}
+
+/* ---- Atmosphere ---------------------------------------------------------
+   A fixed film-grain + vignette, under everything, tied to the viewport
+   rather than the page, so it reads as "the room" rather than a page
+   background. Both are inert to pointer/assistive tech. */
+
+body[data-exhibit-slug] {
+  position: relative;
+}
+
+body[data-exhibit-slug]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+body[data-exhibit-slug]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+body[data-exhibit-slug] #site-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.exhibit {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scenes get incrementally darker the deeper you go — a cheap stand-in for
+   true scroll-depth tracking that costs no JS. */
+.scene {
+  position: relative;
+}
+
+.scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0);
+}
+
+.scene:nth-of-type(2)::before { background: rgba(0, 0, 0, 0.08); }
+.scene:nth-of-type(3)::before { background: rgba(0, 0, 0, 0.14); }
+.scene:nth-of-type(4)::before { background: rgba(0, 0, 0, 0.2); }
+.scene:nth-of-type(5)::before { background: rgba(0, 0, 0, 0.26); }
+.scene:nth-of-type(6)::before { background: rgba(0, 0, 0, 0.3); }
+
+/* ---- Reveal on scroll ----------------------------------------------------
+   render-exhibit.js adds .is-in via IntersectionObserver, or immediately
+   under prefers-reduced-motion / before the observer has a chance to run. */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(6px);
+  transition: opacity var(--duration-reveal) var(--ease-out),
+              transform var(--duration-reveal) var(--ease-out),
+              filter var(--duration-reveal) var(--ease-out);
+}
+
+[data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* ---- The piece -----------------------------------------------------------
+   Base stage styling, shared by both hero placements and the type-hero's
+   own piece scene below. Only the canvas auto-fills the stage; any overlay
+   element a piece adds (a toggle button, a caption) positions itself in
+   its own scoped art.css, relative to this same .stage. */
+
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 22rem;
+  background: var(--bg-sunken);
+  border: var(--frame-width) solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 6px var(--bg-raised), 0 20px 50px -20px var(--shadow-color);
+  overflow: hidden;
+  contain: layout paint style;
+  isolation: isolate;
+}
+
+.stage canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.exhibit-piece__hint {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+/* ---- Hero ---------------------------------------------------------------- */
+
+.exhibit-hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-8) 0 var(--space-6);
+}
+
+/* Vertically centered via auto margins rather than justify-content, so a
+   long, multi-line title (see --text-display's tuning note in tokens.css)
+   simply pushes the scroll cue down the flex column instead of the two
+   ever overlapping — and on a short viewport, the frame starts at the top
+   rather than clipping off both edges. */
+.exhibit-hero__frame {
+  width: 100%;
+  max-width: 96rem;
+  margin: auto;
+  padding: 0 var(--space-6);
+}
+
+.exhibit-hero[data-hero-mode="piece"] .exhibit-hero__frame {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+/* Without this, a grid track's default min-width: auto lets an unbreakable
+   child (an exceptionally long word, pre-wrap-fix) force the track past its
+   5fr share — the title column would quietly steal space from the piece
+   column rather than wrapping. */
+.exhibit-hero[data-hero-mode="piece"] .exhibit-hero__text {
+  min-width: 0;
+}
+
+.exhibit-hero[data-hero-mode="type"] .exhibit-hero__frame {
+  max-width: 72rem;
+  text-align: center;
+}
+
+.exhibit-hero__eyebrow {
+  margin-bottom: var(--space-5);
+}
+
+.exhibit-title {
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 0 0 var(--space-4);
+}
+
+/* The type hero's title gets the full poster treatment because it's
+   centered in a wide (up to 72rem) column. Piece hero only gives the title
+   its 5fr share of the frame — roughly 40% of the viewport once the gap and
+   padding are subtracted — so reusing --text-display there wraps even an
+   ordinary multi-word title into a tall, cramped stack that pushes the hero
+   line and piece below the fold. This clamp is tuned to that narrower
+   column instead. */
+.exhibit-hero[data-hero-mode="piece"] .exhibit-title {
+  font-size: clamp(2.5rem, 1rem + 3.4vw, 5.5rem);
+}
+
+.exhibit-hero__line {
+  font-size: var(--text-statement);
+  line-height: var(--leading-snug);
+  color: var(--ink-dim);
+  max-width: 34ch;
+  margin: 0;
+}
+
+.exhibit-hero[data-hero-mode="type"] .exhibit-hero__line {
+  max-width: none;
+  margin: 0 auto;
+}
+
+.exhibit-piece__hint--hero {
+  margin: var(--space-4) 0 0;
+  text-align: left;
+}
+
+.exhibit-hero[data-hero-mode="type"] .exhibit-piece__hint--hero {
+  text-align: center;
+}
+
+.exhibit-hero__piece .stage {
+  height: min(78svh, 54rem);
+  aspect-ratio: auto;
+}
+
+.exhibit-hero__scrollcue {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  font-size: var(--text-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.exhibit-hero__scrollcue span {
+  width: 1px;
+  height: var(--space-6);
+  background: linear-gradient(to bottom, var(--ink-faint), transparent);
+  animation: scrollcue-drift 1.8s var(--ease) infinite;
+}
+
+@keyframes scrollcue-drift {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exhibit-hero__scrollcue span { animation: none; }
+}
+
+@media (max-width: 64rem) {
+  .exhibit-hero[data-hero-mode="piece"] .exhibit-hero__frame {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  .exhibit-hero[data-hero-mode="piece"] .exhibit-hero__piece {
+    order: -1;
+  }
+  .exhibit-hero__piece .stage {
+    height: 60svh;
+  }
+}
+
+@media (max-width: 40rem) {
+  .exhibit-hero { padding: var(--space-8) 0 var(--space-6); }
+  .exhibit-hero__frame { padding: 0 var(--space-4); }
+}
+
+/* The type hero's own piece scene (used when hero:"type" but the exhibit
+   still has a piece — it moves here, after The Case, instead of vanishing). */
+.exhibit-piece-scene {
+  min-height: 90svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-7) var(--space-5);
+}
+
+.exhibit-piece-scene .stage {
+  width: 100%;
+  max-width: 56rem;
+  height: min(70svh, 44rem);
+  aspect-ratio: auto;
+}
+
+/* ---- Scenes --------------------------------------------------------------- */
+
+.scene {
+  min-height: 90svh;
+  display: flex;
+  align-items: center;
+  padding: var(--space-8) var(--space-5);
+}
+
+.scene > .u-measure,
+.scene > .u-container {
+  margin: 0 auto;
+}
+
+.scene__heading {
+  position: relative;
+  font-size: var(--text-hero);
+  line-height: var(--leading-display);
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--space-6);
+}
+
+.scene__heading[data-num]::before {
+  content: attr(data-num);
+  position: absolute;
+  top: -0.3em;
+  left: -0.1em;
+  z-index: -1;
+  font-size: 2.6em;
+  font-weight: 700;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--line);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ---- What's at Stake / The Case ------------------------------------------- */
+
+.exhibit-stakes__body p,
+.exhibit-case__body p {
+  color: var(--ink-dim);
+  font-size: var(--text-lg);
+  line-height: var(--leading-loose);
+}
+
+.exhibit-case__body p:first-of-type {
+  font-size: var(--text-statement);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+  margin-bottom: var(--space-6);
+}
+
+/* ---- The Argument -----------------------------------------------------
+   A sticky scene: the steps scroll past inside it while the one nearest
+   the viewport center stays bright and the rest dim. */
+
+.exhibit-argument {
+  display: block;
+  padding: 0;
+}
+
+.exhibit-argument__inner {
+  padding: var(--space-8) var(--space-5);
+}
+
+/* The steps are deliberately tall — each one gets most of a viewport
+   height to itself — so there's real scroll distance for the center step
+   to visibly take its turn as bright while its neighbors dim. */
+.exhibit-argument__steps {
+  margin: var(--space-6) 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-faint);
+}
+
+.exhibit-argument__steps li {
+  position: relative;
+  min-height: 44svh;
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) 0 var(--space-3) var(--space-6);
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  opacity: 0.4;
+  filter: blur(1px);
+  transition: opacity var(--duration-slow) var(--ease), filter var(--duration-slow) var(--ease), color var(--duration-slow) var(--ease);
+}
+
+.exhibit-argument__steps li::before {
+  content: counter(step);
+  counter-increment: step;
+  position: absolute;
+  left: 0;
+  top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--accent);
+}
+
+.exhibit-argument__steps {
+  counter-reset: step;
+}
+
+.exhibit-argument__steps li.is-active {
+  opacity: 1;
+  filter: none;
+  color: var(--ink);
+}
+
+.exhibit-argument__conclusion {
+  padding: var(--space-5) var(--space-6);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-size: var(--text-statement);
+  line-height: var(--leading-snug);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exhibit-argument__steps li { opacity: 1; filter: none; min-height: 0; color: var(--ink); }
+}
+
+/* ---- The Tension ------------------------------------------------------- */
+
+.exhibit-tension__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+.tension-path {
+  padding: var(--space-6);
+  border: var(--frame-width) solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+  transition: border-color var(--duration-base) var(--ease), box-shadow var(--duration-base) var(--ease);
+}
+
+.tension-path:hover,
+.tension-path:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-soft), 0 20px 40px -24px var(--shadow-color);
+}
+
+.tension-path__targets {
+  display: block;
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-3);
+}
+
+.tension-path h3 {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-snug);
+  margin-bottom: var(--space-3);
+}
+
+.tension-path p {
+  color: var(--ink-dim);
+  font-size: var(--text-base);
+  margin: 0;
+}
+
+.tension-path__reply {
+  margin-top: var(--space-4) !important;
+  padding-top: var(--space-4);
+  border-top: var(--frame-width) solid var(--line-soft);
+}
+
+.tension-path__reply-label {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+/* ---- Note ------------------------------------------------------------------ */
+
+.exhibit-note {
+  min-height: 50svh;
+  padding: var(--space-6) var(--space-5);
+}
+
+.exhibit-note p {
+  color: var(--ink-faint);
+  font-size: var(--text-base);
+  line-height: var(--leading-loose);
+}
+
+/* ---- Further Reading --------------------------------------------------- */
+
+.exhibit-reading__list {
+  list-style: none;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+}
+
+.exhibit-reading__list li {
+  padding: var(--space-4) 0;
+  border-top: var(--frame-width) solid var(--line-soft);
+  color: var(--ink-dim);
+  font-size: var(--text-base);
+}
+
+.exhibit-reading__list li:first-child {
+  border-top: none;
+}
+
+/* ---- Outro --------------------------------------------------------------- */
+
+.exhibit-outro {
+  min-height: 70svh;
+  display: flex;
+  align-items: center;
+  padding: var(--space-8) var(--space-5);
+}
+
+.exhibit-outro__inner {
+  display: grid;
+  gap: var(--space-6);
+  text-align: center;
+}
+
+.exhibit-outro__next {
+  display: block;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.exhibit-outro__next .u-eyebrow {
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.exhibit-outro__title {
+  display: block;
+  font-size: var(--text-hero);
+  line-height: var(--leading-display);
+  letter-spacing: -0.015em;
+  transition: color var(--duration-base) var(--ease);
+}
+
+.exhibit-outro__next:hover .exhibit-outro__title,
+.exhibit-outro__next:focus-visible .exhibit-outro__title {
+  color: var(--accent);
+}
+
+.exhibit-outro__wing,
+.exhibit-outro__prev {
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.exhibit-outro__wing:hover,
+.exhibit-outro__prev:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 40rem) {
+  .scene,
+  .exhibit-argument__inner,
+  .exhibit-outro {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+}

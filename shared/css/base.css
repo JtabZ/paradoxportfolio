@@ -1,0 +1,175 @@
+/* ==========================================================================
+   Cabinet of Minds — base
+   Reset, typography, and the handful of layout primitives every page reuses.
+   Component-specific styling (cards, nav, footer) lives in components.css;
+   the exhibit's 5-part layout lives in exhibit.css.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  background-image: var(--glow);
+  background-repeat: no-repeat;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+canvas,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-4);
+  color: var(--ink);
+}
+
+h1 { font-size: var(--text-4xl); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+
+p {
+  margin: 0 0 var(--space-4);
+}
+
+small, .text-sm { font-size: var(--text-sm); }
+.text-xs { font-size: var(--text-xs); }
+
+/* Any <em> inside a hero line, a lead statement, or an exhibit title reads
+   in the italic serif, in --accent — the one deliberate font switch on the
+   page. Scoped to those three contexts, not a bare em rule, so ordinary
+   body copy is unaffected if it ever needs real emphasis. */
+.exhibit-hero__line em,
+.exhibit-statement em,
+.exhibit-title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.05em;
+  color: var(--accent);
+}
+
+a {
+  color: var(--accent);
+  text-decoration-color: var(--accent-soft);
+  text-underline-offset: 0.15em;
+}
+
+a:hover { text-decoration-thickness: 2px; }
+
+/* A visible, deliberate focus ring everywhere — many pages here are mostly
+   canvas and imagery, so keyboard users need an unmistakable landmark. */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+/* ---- Layout primitives ------------------------------------------------- */
+
+.u-container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+
+.u-stack > * + * {
+  margin-top: var(--space-5);
+}
+
+.u-stack-sm > * + * {
+  margin-top: var(--space-3);
+}
+
+.u-measure {
+  max-width: var(--measure);
+}
+
+.u-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.u-eyebrow::before {
+  content: "";
+  width: 0.5em;
+  height: 1px;
+  background: currentColor;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -3rem;
+  background: var(--bg-raised);
+  color: var(--ink);
+  padding: var(--space-2) var(--space-4);
+  border: var(--frame-width) solid var(--line);
+  border-radius: var(--radius-sm);
+  z-index: 100;
+  transition: top var(--duration-fast) var(--ease);
+}
+
+.skip-link:focus-visible {
+  top: var(--space-4);
+}
+
+@media (max-width: 40rem) {
+  .u-container { padding: 0 var(--space-4); }
+}

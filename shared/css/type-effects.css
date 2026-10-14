@@ -1,0 +1,195 @@
+/* ==========================================================================
+   Cabinet of Minds — type effects
+   Styling for shared/js/type-effects.js: per-letter entrance, the pointer-
+   follow candlelight, the accent-word shimmer, the scroll exit, and the
+   three thematic title treatments (color-flood, echo, hollow). Every rule
+   here has a prefers-reduced-motion fallback that leaves type fully visible
+   and static — these are arrival effects, never load-bearing for reading.
+   ========================================================================== */
+
+.split-text {
+  display: inline;
+}
+
+.split-text__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.split-text__char {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(12px);
+  letter-spacing: 0.08em;
+  font-variation-settings: "wght" calc(400 + var(--swell, 0) * 300);
+  animation: char-enter 900ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 26ms);
+  transition: font-variation-settings var(--duration-fast) var(--ease);
+}
+
+@keyframes char-enter {
+  to {
+    opacity: 1;
+    filter: blur(0);
+    letter-spacing: 0;
+  }
+}
+
+/* ---- Candlelight -------------------------------------------------------
+   Resting state: dim but legible. Once lit (pointer over the surface, or
+   drifting on touch devices), a warm radial light sweeps across the type
+   via background-clip: text, following --mx/--my. */
+
+.split-text--candlelit .split-text__char {
+  color: var(--ink-dim);
+}
+
+.split-text--candlelit.split-text--lit {
+  background-image: radial-gradient(
+    circle 22vw at var(--mx, 50%) var(--my, 50%),
+    var(--ink) 0%,
+    var(--ink) 35%,
+    var(--ink-dim) 75%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.split-text--candlelit.split-text--lit .split-text__char {
+  color: transparent;
+}
+
+/* ---- Accent shimmer -----------------------------------------------------
+   A slow gradient sheen across <em> accent words — see base.css for the
+   font/color rule this layers on top of. */
+
+.exhibit-hero__line em,
+.exhibit-statement em,
+.exhibit-title em {
+  background-image: linear-gradient(100deg, var(--accent) 30%, #fff6da 50%, var(--accent) 70%);
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: accent-shimmer 6s ease-in-out infinite;
+}
+
+@keyframes accent-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ---- Scroll exit ----------------------------------------------------------
+   Progressive enhancement only: browsers without animation-timeline just
+   keep a static hero text block. */
+
+@supports (animation-timeline: view()) {
+  .exhibit-hero__text {
+    animation: hero-exit linear both;
+    animation-timeline: view();
+    animation-range: exit 0% cover 55%;
+  }
+
+  @keyframes hero-exit {
+    to {
+      opacity: 0;
+      filter: blur(6px);
+      transform: scale(1.04);
+    }
+  }
+}
+
+/* ---- Thematic title effects --------------------------------------------- */
+
+.exhibit-title {
+  position: relative;
+}
+
+/* color-flood (Mary): letters start grayscale, color floods in one by one. */
+.split-text--color-flood .split-text__char {
+  filter: grayscale(1);
+  animation:
+    char-enter 900ms var(--ease-out) both,
+    char-flood var(--duration-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 26ms), calc(900ms + var(--i, 0) * 50ms);
+}
+
+@keyframes char-flood {
+  to { filter: grayscale(0); }
+}
+
+/* echo (Bat): outlined ghost copies ripple outward like sonar. */
+.split-text__echo {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--accent);
+  opacity: 0;
+  animation: echo-ripple 3.6s ease-out infinite;
+  animation-delay: calc(var(--ring, 1) * 0.9s);
+  pointer-events: none;
+}
+
+@keyframes echo-ripple {
+  0% { opacity: 0.5; transform: scale(1); filter: blur(0); }
+  100% { opacity: 0; transform: scale(1.08); filter: blur(2px); }
+}
+
+/* hollow (Zombies): a filled title and an outlined twin, offset. Hover or
+   focus swaps which one reads as "real". */
+.split-text__twin {
+  position: absolute;
+  inset: 0;
+  transform: translateX(0.18em);
+  color: transparent;
+  -webkit-text-stroke: 1px var(--accent);
+  opacity: 0.7;
+  transition: opacity var(--duration-slow) var(--ease), transform var(--duration-slow) var(--ease);
+  pointer-events: none;
+}
+
+.exhibit-title:hover .split-text__twin,
+.exhibit-title:focus-within .split-text__twin {
+  transform: translateX(-0.18em);
+  opacity: 1;
+}
+
+/* ---- Reduced motion: every effect above goes static -------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .split-text__char {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    letter-spacing: normal;
+    font-variation-settings: "wght" 400;
+  }
+
+  .split-text--candlelit .split-text__char {
+    color: var(--ink);
+  }
+
+  .exhibit-hero__line em,
+  .exhibit-statement em,
+  .exhibit-title em {
+    animation: none;
+    background-position: 50% 50%;
+  }
+
+  .exhibit-hero__text {
+    animation: none !important;
+  }
+
+  .split-text--color-flood .split-text__char {
+    animation: none;
+    filter: none;
+  }
+
+  .split-text__echo {
+    display: none;
+  }
+
+  .split-text__twin {
+    opacity: 0;
+  }
+}
